@@ -1,0 +1,18 @@
+#!/bin/bash
+set -x
+docker-compose build mysql app
+docker-compose up -d mysql app
+
+sleep 5
+
+docker-compose exec mysql mysql -u root -ppassword -e 'show databases;' | grep -E 'db_development|db_test' > /dev/null 2>&1
+
+if [ $? -eq 1 ]; then
+  # Create databases if a development database doesn't exist
+  docker-compose exec mysql mysql -u root -ppassword -e \
+  "CREATE database db_development CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin; GRANT ALL on db_development.* TO app@'%' IDENTIFIED BY 'password'; CREATE database db_test CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin; GRANT ALL on db_test.* TO app@'%';"
+fi
+
+docker-compose exec app bundle exec rails db:setup
+
+docker-compose up app
