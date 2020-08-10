@@ -1,0 +1,17 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8mb4
+  charset: utf8mb4
+  collation: utf8mb4_bin 
+  pool: 5 
+  timeout: 5000
+  username: <%= ENV["MYSQL_USERNAME"] || "app" %>
+  password: <%= ENV["MYSQL_PASSWORD"] || "password" %>
+  host: <%= ENV["MYSQL_HOST"] || "127.0.0.1" %>
+  port: <%= ENV["MYSQL_PORT"] || "3306" %>
+development: 
+  <<: *default 
+  database: db_development
+test: 
+  <<: *default
+  database: db_test
